@@ -216,6 +216,19 @@ task :index, :roles => group_name do
 end
 before "index", "EC2:start"
 
+# Create a summary of the files
+desc "create a summary of the bam files"
+task :flagstat, :roles => group_name do
+ files = capture "ls #{mount_point}"
+  files = files.split("\n").select{|f| f.match(/sorted_nodups\.bam/)}
+  files.each{|f|
+    f_out = f.sub('.bam', '.summary')
+    run "cd #{mount_point} && samtools flagstat #{f} > #{f.out}"
+  }
+
+end
+before "flagstat", "EC2:start"
+
 
 # Pull the BAM files back to the mng.iop.kcl.ac.uk server
 desc "download bam files"
@@ -374,7 +387,7 @@ task :annotate_peaks, :roles => group_name do
       rdfiles = rdfiles.split("\n")
       rdfiles.each{|rd|
         unless rd.match(/negative/)
-          run"cd #{working_dir} && Rscript #{working_dir}/mm9RDtoGenes.R #{rd}"
+          run "cd #{working_dir} && Rscript #{working_dir}/mm9RDtoGenes.R #{rd}"
         end
       }
     end

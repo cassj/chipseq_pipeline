@@ -40,6 +40,7 @@ save(tss, file=paste(dirname(filename),"/tss.RData",sep=""))
 
 # They will also pull out anything overlapping.
 # Post-process if you only want nearest.
+#This doesn't take strand into account, whatever the docs say.
 nearest.tss.start <- annotatePeakInBatch(rd,
                                          AnnotationData=tss,
                                          PeakLocForDistance = "middle",    # from the middle of the peak
@@ -223,23 +224,9 @@ rownames(annot) <- annot[,"ensembl_gene_id"]
 res.exon  <- cbind(res.exon, annot[res.exon[,"ensembl_gene_id"],   c("mgi_symbol", "description")])
 
 #save the results.
-write.csv(res.tss, file=paste(dirname(filename),"/res_tss.csv", sep=""), row.names=F, quote=F)
-write.csv(res.mirna, file=paste(dirname(filename),"/res_mirna.csv", sep=""), row.names=F, quote=F)
-write.csv(res.exon, file=paste(dirname(filename),"/res_exon.csv", sep=""), row.names=F, quote=F)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+write.csv(res.tss, file=paste(dirname(filename),"/res_tss.csv", sep=""), row.names=F)
+write.csv(res.mirna, file=paste(dirname(filename),"/res_mirna.csv", sep=""), row.names=F)
+write.csv(res.exon, file=paste(dirname(filename),"/res_exon.csv", sep=""), row.names=F)
 
 
 
