@@ -7,7 +7,7 @@ set :ec2_url, ENV['EC2_URL']
 set :ssh_options, { :user => "ubuntu", :keys=>[ENV['EC2_KEYFILE']]}
 set :key, ENV['EC2_KEY']
 set :key_file, ENV['EC2_KEYFILE']
-set :ami, `curl http://mng.iop.kcl.ac.uk/cass_data/buckley_ami/AMIID`
+set :ami, `curl http://mng.iop.kcl.ac.uk/cass_data/buckley_ami/AMIID`.chomp
 set :instance_type,  'c1.xlarge'
 set :working_dir, '/mnt/work'
 set :nhosts, 1
@@ -270,6 +270,8 @@ before "bam_tidy", 'EC2:start'
 
 
 ######## Peak Finding
+
+#Need to be able to specify multiple treatment and control pairs here.
 
 task :run_macs, :roles => group_name do
 

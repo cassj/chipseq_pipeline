@@ -9,7 +9,7 @@
 # A BED file containing the peak regions for each of the samples
 
 
-#!/usr/local/bin/Rscript compare_peaks /path/to/counts_file.RData /path/to/libsizes.RData
+#Rscript compare_peaks /path/to/counts_file.RData /path/to/libsizes.RData /path/to/outputdir
 
 options(stringsAsFactors = FALSE);
 args <- commandArgs(trailingOnly=TRUE)
@@ -25,10 +25,12 @@ library(edgeR)
 
 counts.file <- args[1]
 libsizes.file <- args[2]
+outdir <- args[3]
 
 #for testing
 counts.file <- "/mnt/data/counts.RData"
 libsizes.file <- "/mnt/data/libsizes.RData"
+outdir <- "/mnt/data"
 
 counts <- get(load(counts.file))
 libsizes <- get(load(libsizes.file))
@@ -62,11 +64,15 @@ d <- DGEList(counts[,-1], group=groups)
 ### DESeq
 
 
+## *TODO* Need to do all possible pairwise combinations of the count columns 
+
 counts.table <- counts[,-1]
 group.names <- c("TC","SC")
 
-counts.table <- counts[,-1]
+#avoid zero values
 counts.table <- counts.table + 1
+
+  
 cds <- newCountDataSet( counts.table, group.names)
 cds <- estimateSizeFactors(cds)
 cds <- estimateVarianceFunctions(cds, method="blind")
@@ -74,50 +80,73 @@ res <- nbinomTest(cds, "TC","SC")
 
 res <- res[order(res[,"pval"]),]
 
+A <- colnames(counts.table)[1]
+B <- colnames(counts.table)[2]
 
-# need to map res back to genes, but it kinda works.
-# Really not getting enough sig with no reps though.
+colnames(res) <- gsub('A',paste("_",A,sep=""), colnames(res))
+colnames(res) <- gsub('B',paste("_",B,sep=""), colnames(res))
 
-
-# ok, this kinda works but we're getting infinite fold changes. How to deal with the 0 values?
-
-### baySeq
-
-# can't get this to work with multiple threads
-if(is.null(threads) || threads==1){
-  cl <- NULL
-}else{
-  cl <- makeCluster(threads,"SOCK")
-}
+write.csv(res, file=paste(outdir, 'peak_compare.csv', sep='/'), row.names=F)
 
 
 
-# Now use baySeq to determine differentially expressed counts.
-replicates <- c(1,2)
-groups <- list(NDE=c(1,1), DE=c(1,2))
-
-# we need to get the library sizes from the summary files
-summaries <- gsub('.bam', '.summary', bam.files )
-libsizes <- sapply(summaries, function(x){
-  l <- readLines(x,1)
-  l <- sub("\\s+.*","",l, perl=T)
-})
 
 
 
-cd <- new("countData", data=counts, replicates=replicates, libsizes=as.integer(libsizes), groups=groups, seglens=seglens)
 
-# Determine significance of differential counts assuming Negative Binomial count distribution.
 
-# Bootstrap an empirical distribution from the data.
-# This should really use 10,000 iterations, Maybe best to use the multiple cores
-NBML <- getPriors.NB(cd, samplesize=10000, estimation="QL", cl=cl)
-post.NBML <- getLikelihoods.NB(NBML,pET="BIC",cl=cl)
 
-props <- post.NBML@estProps
 
-#very small fraction are different. This is < 1.
-#Which either means that we haven't got enough data or there's no difference.
-props[2]*nrow(counts)
 
-#Try it on the Mash data maybe?
+
+
+
+
+
+
+
+
+
+
+
+#### baySeq
+#
+## can't get this to work with multiple threads
+#if(is.null(threads) || threads==1){
+#  cl <- NULL
+#}else{
+#  cl <- makeCluster(threads,"SOCK")
+#}
+#
+#
+#
+## Now use baySeq to determine differentially expressed counts.
+#replicates <- c(1,2)
+#groups <- list(NDE=c(1,1), DE=c(1,2))
+#
+## we need to get the library sizes from the summary files
+#summaries <- gsub('.bam', '.summary', bam.files )
+#libsizes <- sapply(summaries, function(x){
+#  l <- readLines(x,1)
+#  l <- sub("\\s+.*","",l, perl=T)
+#})
+#
+#
+#
+#cd <- new("countData", data=counts, replicates=replicates, libsizes=as.integer(libsizes), groups=groups, seglens=seglens)
+#
+## Determine significance of differential counts assuming Negative Binomial count distribution.
+#
+## Bootstrap an empirical distribution from the data.
+## This should really use 10,000 iterations, Maybe best to use the multiple cores
+#NBML <- getPriors.NB(cd, samplesize=10000, estimation="QL", cl=cl)
+#post.NBML <- getLikelihoods.NB(NBML,pET="BIC",cl=cl)
+#
+#props <- post.NBML@estProps
+#
+##very small fraction are different. This is < 1.
+##Which either means that we haven't got enough data or there's no difference.
+#props[2]*nrow(counts)
+#
+##Try it on the Mash data maybe?
+##
