@@ -112,9 +112,11 @@ write.csv(res, file = paste(dirname(filename),"/nearest_or_overlapping_peak_to_g
 
 res.o <- res[order(abs(res[,"distancetoFeature"]),decreasing=FALSE),]
 
-res.od <- res.o[which(!duplicated(res.o[,"EnsemblID"])),]
+res.od <- res.o[which(!duplicated(res.o[,"Peak"])),]
 
-write.csv(res.od, file = paste(dirname(filename),"/nearest_peak_to_gene_TSS.csv",sep=""))
+res.odd <- res.od[which(!duplicated(res.od[,"EnsemblID"])),]
+
+write.csv(res.odd, file = paste(dirname(filename),"/nearest_peak_to_gene_TSS.csv",sep=""))
 
 
 

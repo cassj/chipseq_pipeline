@@ -21,10 +21,10 @@ library(baySeq)
 library(DESeq)
 library(rtracklayer)
 library(Rsamtools)
-library(edgeR)
+#library(edgeR)
 
 counts.file <- args[1]
-libsizes.file <- args[2]
+#libsizes.file <- args[2]
 outdir <- args[3]
 
 #for testing
@@ -67,7 +67,8 @@ d <- DGEList(counts[,-1], group=groups)
 ## *TODO* Need to do all possible pairwise combinations of the count columns 
 
 counts.table <- counts[,-1]
-group.names <- c("TC","SC")
+#group.names <- c("TC","SC")
+group.names<-c('ns5','ns5dastro')
 
 #avoid zero values
 counts.table <- counts.table + 1
@@ -76,7 +77,8 @@ counts.table <- counts.table + 1
 cds <- newCountDataSet( counts.table, group.names)
 cds <- estimateSizeFactors(cds)
 cds <- estimateVarianceFunctions(cds, method="blind")
-res <- nbinomTest(cds, "TC","SC")
+#res <- nbinomTest(cds, "TC","SC")
+res <- nbinomTest(cds, "ns5","ns5dastro")
 
 res <- res[order(res[,"pval"]),]
 

@@ -1,3 +1,5 @@
+#!/usr/bin/env Rscript
+
 ###
 #
 # For each region in the BED files, fetches the read count in that regions from the BAM file.
@@ -18,7 +20,7 @@ args <- commandArgs(trailingOnly=TRUE)
 
 #for testing
 #args<-c("/mnt/data/",4, "/mnt/astro/BAM/IP.bam" ,"/mnt/astro/Macs/NA_peaks.bed", "/mnt/esc/chip_export_sorted_nodups.bam","/mnt/esc/macs_300_1.0e-05/EscChIPseqREST_peaks.bed")
-args <- c("/mnt/data/",4,"/mnt/TC/CMN066_s_8_export_sorted_nodups.bam", "/mnt/TC/macs_300_1.0e-05/Mash1_TC_peaks.bed", "/mnt/SC/chip_export_sorted_nodups.bam", "/mnt/SC/macs_300_1.0e-05/Mash1_SC_peaks.bed")
+#args <- c("/mnt/data/",4,"/mnt/TC/CMN066_s_8_export_sorted_nodups.bam", "/mnt/TC/macs_300_1.0e-05/Mash1_TC_peaks.bed", "/mnt/SC/chip_export_sorted_nodups.bam", "/mnt/SC/macs_300_1.0e-05/Mash1_SC_peaks.bed")
 
 
 resdir <- args[1]
@@ -90,6 +92,7 @@ save(counts, file=paste(resdir,"counts.RData", sep="/"))
 
 
 # We'll need the library sizes later, so get them from the summary files
+# Note that these should be generated using the samtools flagstat program
 summaries <- gsub('.bam', '.summary', bam.files )
 libsizes <- sapply(summaries, function(x){
   l <- readLines(x,1)

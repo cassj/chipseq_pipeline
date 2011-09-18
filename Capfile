@@ -17,6 +17,7 @@ set :vol_id, `cat VOLUMEID`.chomp
 set :ebs_size, 60 
 set :availability_zone, 'eu-west-1a'
 set :dev, '/dev/sdf'
+#set :dev, '/dev/xvdf'
 set :mount_point, '/mnt/data'
 
 
@@ -134,18 +135,6 @@ before "get_fastqc", 'EC2:start'
 
 
 #### Alignment
-
-
-#get the current mouse genome (which I already have on S3).
-task :fetch_genome, :roles => group_name do
-  run "mkdir -p #{working_dir}/indexes"
-  run "cd #{working_dir}/indexes && curl https://s3-eu-west-1.amazonaws.com/genome-mm9-bowtie/mm9.ebwt.zip > mm9.ebwt.zip"
-  run "rm -Rf #{working_dir}/indexes/chr*"
-  run "cd  #{working_dir}/indexes && unzip -o mm9.ebwt.zip"
-#?  run "export BOWTIE_INDEXES='#{working_dir}/indexes'"
-end
-before "fetch_genome","EC2:start"
-
 
 
 # run bowtie on the fastq file

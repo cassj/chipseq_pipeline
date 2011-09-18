@@ -40,7 +40,7 @@ save(tss, file=paste(dirname(filename),"/tss.RData",sep=""))
 
 # They will also pull out anything overlapping.
 # Post-process if you only want nearest.
-#This doesn't take strand into account, whatever the docs say.
+# This doesn't take strand into account, whatever the docs say.
 nearest.tss.start <- annotatePeakInBatch(rd,
                                          AnnotationData=tss,
                                          PeakLocForDistance = "middle",    # from the middle of the peak
